@@ -1,3 +1,5 @@
 {
-    "ros.distro": "noetic"
+    "files.associations": {
+        "*.tcc": "cpp"
+    }
 }

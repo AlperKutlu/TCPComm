@@ -21,7 +21,8 @@ void *clientHandler(void *arg)
     int n;
 
     bzero(buffer, 256);
-    n = read(newsockfd, buffer, 255);
+    n = read(newsockfd, buffer, 
+    );
     if (n < 0)
         error("ERROR reading from socket");
 
