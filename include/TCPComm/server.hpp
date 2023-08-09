@@ -12,6 +12,8 @@
 #include <cstring>
 #include <cstdio>
 #include <thread>
+#include <string.h>
+#include <yaml-cpp/yaml.h>
 
 class SocketComm{
     public:
@@ -26,10 +28,14 @@ class SocketComm{
         
         int GetSocket();
 
+        void SetPort(int PortNum);
+
         private:
 
         int m_Socket;
         sockaddr_in m_ServerAddress;
+        int m_PortNum;
+        int m_IPAddr;
         
 };
 

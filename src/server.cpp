@@ -2,18 +2,11 @@
 
 
 
-#define PORT 55555
-
 char msg[500];
 
 SocketComm::SocketComm()
 {
-    m_Socket = socket(AF_INET, SOCK_STREAM, 0);
 
-    m_ServerAddress.sin_family = AF_INET;
-    m_ServerAddress.sin_addr.s_addr = INADDR_ANY;
-    m_ServerAddress.sin_port = htons(PORT);
-    bind(m_Socket, (struct sockaddr *)&m_ServerAddress, sizeof(m_ServerAddress));
 }
 
 SocketComm::~SocketComm()
@@ -21,33 +14,73 @@ SocketComm::~SocketComm()
     
 }
 
+bool SocketComm::init(){
+    m_Socket = socket(AF_INET, SOCK_STREAM, 0);
+
+    m_ServerAddress.sin_family = AF_INET;
+    m_ServerAddress.sin_addr.s_addr = INADDR_ANY;
+    m_ServerAddress.sin_port = htons(m_PortNum);
+    std::cout << m_PortNum;
+    bind(m_Socket, (struct sockaddr *)&m_ServerAddress, sizeof(m_ServerAddress));
+}
+
 int SocketComm::GetSocket(){
     return m_Socket;
 }
 
-bool SocketComm::init()
-{
- 
+void SocketComm::SetPort(int PortNum){
+    m_PortNum = PortNum;
 }
+
 
 void SocketComm::ClientComm(int client_socket)
 {
-    // send data to the client
     const char *message = "Hello, client!";
     send(client_socket, message, strlen(message), 0);
 
-    // receive data from the client
-    char buffer[1024] = {0};
-    read(client_socket, buffer, 1024);
-    std::cout << "Client message: " << buffer << std::endl;
+    while (true)
+    {
+        char buffer[1024] = {0};
+        int bytesRead = read(client_socket, buffer, sizeof(buffer) - 1);
+        if (bytesRead > 0)
+        {
+            std::cout << "Received from client: " << buffer << std::endl;
 
+            // Send a response 
+            const char *response = "Received your message!";
+            send(client_socket, response, strlen(response), 0);
+        }
+        else if (bytesRead == 0)
+        {
+            std::cout << "Client disconnected." << std::endl;
+            break; 
+        }
+    }
+
+    close(client_socket);
 }
 
 
 
 int main(int argc, char *argv[]) {
-    SocketComm ab;
+    int server_port;
+    try {
+        YAML::Node config = YAML::LoadFile("config.yml");
 
+        std::string server_ip = config["server_ip"].as<std::string>();
+        server_port = config["server_port"].as<int>();
+
+        std::cout << "Server IP: " << server_ip << std::endl;
+        std::cout << "Server Port: " << server_port << std::endl;
+    } catch (const YAML::Exception& e) {
+        std::cerr << "Error loading configuration: " << e.what() << std::endl;
+        return 1;
+    }
+
+
+    SocketComm ab;
+    ab.SetPort(server_port);
+    ab.init();
     listen(ab.GetSocket(), 3);
     while (1)
     {
