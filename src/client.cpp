@@ -11,13 +11,19 @@
 #include <netdb.h> 
 #include <stdlib.h>
 #include <fstream>
+#include <json/json.h>
+#include <sstream>
+#include <string>
+
+
 
 const  int max_iteration = 100;
 
 
-void receive_messages(int socket)
+std::string receive_messages(int socket)
 {
     char buffer[1024] = {0};
+    std::string received_data;
 
     int iteration = 0;
 
@@ -33,18 +39,21 @@ void receive_messages(int socket)
             
             break;
         }
-        std::cout << "Server message: " << buffer << std::endl;
+       
+       received_data.append(buffer, recv_len);
 
         //clear buffer
         memset(buffer, 0, sizeof(buffer));
 
         iteration++;
     }
+
+    return received_data;
 }
 
 int main(int argc, char *argv[]) 
 {
-    if (argc != 4){
+    if (argc != 3){
         std::cerr << "Usage: " << argv[0] << "<server_ip> <port_number>" << std::endl;
 
         return 1;
@@ -52,8 +61,8 @@ int main(int argc, char *argv[])
 
     std::string server_ip = argv[1];
     int port_number = std::stoi(argv[2]);
-    std::string json_file_path = argv[3];
-
+/*     std::string json_file_path = argv[3];
+ */
     
 
     //create a socket
@@ -86,22 +95,30 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    //read JSON content from the file
+    //call the receive_messages function to get received JSON data
     
-    std::ifstream json_file(json_file_path);
-    if (!json_file) 
-    {
-        std::cerr << "Failed to open JSON file." << std::endl;
-        
-        return 1;
-    }
-    std::string json_content((std::istreambuf_iterator<char>(json_file)), std::istreambuf_iterator<char>());
-    std::cout << "Size:" << json_content.size() << std::endl;
-    std::cout << json_content << std::endl;
+    std::string received_json= receive_messages(socket2);
+
+    //parse JSON file
+
+    Json::CharReaderBuilder reader;
+    Json::Value parsed_json;
+    std::string errs;
+    std::istringstream stream(received_json);
+    Json::parseFromStream(reader, stream, &parsed_json, &errs);
+
+    // Print the parsed JSON
+
+    std::cout << "Parsed JSON content:" << std::endl;
+    std::cout << parsed_json << std::endl;
+
+    // Convert parsed JSON back to a string
+
+    std::string json_to_send = parsed_json.toStyledString();
 
     //send JSON message to server
 
-     int send_len = send(socket2, json_content.c_str(), json_content.length(), 0);
+    int send_len = send(socket2, json_to_send.c_str(), json_to_send.length(), 0);
 
     if(send_len == -1) 
     {

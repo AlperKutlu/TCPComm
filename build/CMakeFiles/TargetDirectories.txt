@@ -1,0 +1,3 @@
+/home/idilozmen/TCPComm/build/CMakeFiles/rebuild_cache.dir
+/home/idilozmen/TCPComm/build/CMakeFiles/edit_cache.dir
+/home/idilozmen/TCPComm/build/CMakeFiles/client.dir
