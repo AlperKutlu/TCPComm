@@ -6,23 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/idilozmen/TCPComm/src/client.cpp
-iostream
--
-sys/socket.h
--
-arpa/inet.h
--
-unistd.h
--
-cstring
--
-fstream
--
-nlohmann/json.hpp
--
-sstream
--
-string
+/home/idilozmen/TCPComm/src/server.cpp
+/home/alper/git/TCPComm/include/TCPComm/server.hpp
 -
 

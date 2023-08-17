@@ -3,24 +3,17 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
-#include <thread>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h> 
-#include <stdlib.h>
 #include <fstream>
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <string>
 
-
+using json = nlohmann::json;
 
 const  int max_iteration = 100;
 
 
-std::string receive_messages(int socket)
+json receive_messages(int socket)
 {
     char buffer[1024] = {0};
     std::string received_data;
@@ -47,8 +40,8 @@ std::string receive_messages(int socket)
 
         iteration++;
     }
-
-    return received_data;
+    
+    return json::parse(received_data);
 }
 
 int main(int argc, char *argv[]) 
@@ -61,8 +54,7 @@ int main(int argc, char *argv[])
 
     std::string server_ip = argv[1];
     int port_number = std::stoi(argv[2]);
-/*     std::string json_file_path = argv[3];
- */
+
     
 
     //create a socket
@@ -95,38 +87,18 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    
+
     //call the receive_messages function to get received JSON data
     
-    std::string received_json= receive_messages(socket2);
-
-    //parse JSON file
-
-    Json::CharReaderBuilder reader;
-    Json::Value parsed_json;
-    std::string errs;
-    std::istringstream stream(received_json);
-    Json::parseFromStream(reader, stream, &parsed_json, &errs);
+    json received_json = receive_messages(socket2);    
 
     // Print the parsed JSON
 
     std::cout << "Parsed JSON content:" << std::endl;
-    std::cout << parsed_json << std::endl;
+    std::cout << received_json.dump(3) << std::endl;
 
-    // Convert parsed JSON back to a string
-
-    std::string json_to_send = parsed_json.toStyledString();
-
-    //send JSON message to server
-
-    int send_len = send(socket2, json_to_send.c_str(), json_to_send.length(), 0);
-
-    if(send_len == -1) 
-    {
-        std::cerr << "Failed to send JSON message to server." << std::endl;
-        close(socket2);
-        return 1;
-
-    }
+   
 
     
     /*send message to server
