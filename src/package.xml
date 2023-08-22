@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name> TCPComm </name>
+    <version> 1.2.4 </version>
+    <description>
+    This package provides TCP Client/Server communication using JSON file format
+    </description>
+    <maintainer email ="sirius119black@gmail.com"> İdil Özmen </maintainer>
+    <License> MIT</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <build_depend>roscpp</build_depend>
+    <build_depend>std_msgs</build_depend>
+    <build_depend>nlohmann_json</build_depend>
+
+    <exec_depend>roscpp</exec_depend>
+    <exec_depend>std_msgs</exec_depend>
+    <exec_depend>nlohmann_json</exec_depend>
+</pacakge>
